@@ -3,6 +3,8 @@ package provider
 import (
 	"context"
 
+	"terraform-provider-devops/internal/provider/client"
+
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -20,7 +22,7 @@ func NewEngineerDataSource() datasource.DataSource {
 
 // EngineerDataSource is the data source implementation.
 type EngineerDataSource struct {
-	client *Client
+	client *client.Client
 }
 
 // Metadata returns the data source type name.
