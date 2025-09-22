@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-// GetCoffees - Returns list of coffees (no auth required)
+// GetEngineers - Returns list of engineers (no auth required)
 func (c *Client) GetEngineers() ([]Engineer, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/engineers", c.HostURL), nil)
 	if err != nil {
@@ -28,9 +28,9 @@ func (c *Client) GetEngineers() ([]Engineer, error) {
 	return engineers, nil
 }
 
-// GetCoffee - Returns specific coffee (no auth required)
-func (c *Client) GetEngineer(coffeeID string) ([]Engineer, error) {
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/engineer/%s", c.HostURL, coffeeID), nil)
+// GetEngineer - Returns specific engineer (no auth required)
+func (c *Client) GetEngineer(engineerID string) ([]Engineer, error) {
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/engineers/%s", c.HostURL, engineerID), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -49,14 +49,14 @@ func (c *Client) GetEngineer(coffeeID string) ([]Engineer, error) {
 	return engineers, nil
 }
 
-// CreateCoffee - Create new coffee
-func (c *Client) CreateCoffee(engineer Engineer) (*Engineer, error) {
+// CreateEngineer - Create new Engineer
+func (c *Client) CreateEngineer(engineer Engineer) (*Engineer, error) {
 	rb, err := json.Marshal(engineer)
 	if err != nil {
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/coffees", c.HostURL), strings.NewReader(string(rb)))
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/engineers", c.HostURL), strings.NewReader(string(rb)))
 	if err != nil {
 		return nil, err
 	}
