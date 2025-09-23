@@ -29,24 +29,25 @@ func (c *Client) GetEngineers() ([]Engineer, error) {
 }
 
 // GetEngineer - Returns specific engineer (no auth required)
-func (c *Client) GetEngineer(engineerID string) ([]Engineer, error) {
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/engineers/%s", c.HostURL, engineerID), nil)
+func (c *Client) GetEngineer(engineerID string, resp *Engineer) error {
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/engineers/id/%s", c.HostURL, engineerID), nil)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	body, err := c.doRequest(req)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	engineers := []Engineer{}
-	err = json.Unmarshal(body, &engineers)
+	engineer := Engineer{}
+	err = json.Unmarshal(body, &engineer)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return engineers, nil
+	resp = &engineer
+	return nil
 }
 
 // CreateEngineer - Create new Engineer
