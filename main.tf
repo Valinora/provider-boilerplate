@@ -27,3 +27,8 @@ resource "devops_engineer" "other" {
   email = "austin@liatrio.com"
 }
 
+
+resource "devops_engineer" "newname" {
+  name  = "ajdfa"
+  email = "djjjdjd@sdasds.com"
+}

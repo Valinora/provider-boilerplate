@@ -7,8 +7,8 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	// "github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	// "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -45,9 +45,9 @@ func (r *EngineerResource) Schema(_ context.Context, _ resource.SchemaRequest, r
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
+				// PlanModifiers: []planmodifier.String{
+				// 	stringplanmodifier.UseStateForUnknown(),
+				// },
 			},
 			"name": schema.StringAttribute{
 				Required: true,
@@ -108,14 +108,12 @@ func (r *EngineerResource) Read(ctx context.Context, req resource.ReadRequest, r
 		return
 	}
 
-	var engineer client.Engineer
-
-	err := r.client.GetEngineer(state.ID.ValueString(), &engineer)
+	engineer, err := r.client.GetEngineer(state.ID.ValueString())
 
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Reading Engineers",
-			"Could not read Engineers: "+err.Error(),
+			"Could not read Engineer: "+state.ID.ValueString()+": "+err.Error(),
 		)
 
 		return
@@ -135,10 +133,59 @@ func (r *EngineerResource) Read(ctx context.Context, req resource.ReadRequest, r
 
 // Update updates the resource and sets the updated Terraform state on success.
 func (r *EngineerResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan engineerResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	var engineer client.Engineer
+
+	_, err := r.client.UpdateEngineer(plan.ID.ValueString(), engineer)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error Updating Engineer",
+			"Could not update engineer ID: "+plan.ID.ValueString()+", error: "+err.Error(),
+		)
+
+		return
+	}
+
+	engi, err := r.client.GetEngineer(plan.ID.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error Reading Engineer",
+			"Could not read Engineer ID: "+plan.ID.ValueString()+": "+err.Error(),
+		)
+
+		return
+	}
+
+	diags = resp.State.Set(ctx, engi)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
 func (r *EngineerResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state engineerResourceModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	err := r.client.DeleteEngineer(state.ID.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error Deleting Engineer Resource",
+			"Could not delete Engineer with ID: "+state.ID.ValueString()+" error: "+err.Error(),
+		)
+		return
+	}
 }
 
 func (r *EngineerResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
