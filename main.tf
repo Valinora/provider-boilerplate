@@ -35,6 +35,10 @@ resource "devops_engineer" "newname" {
 
 resource "devops_dev" "lmao" {
   name      = "new-goblins"
-  engineers = [devops_engineer.basic.id]
+  engineers = [devops_engineer.basic.id, devops_engineer.other.id]
+}
 
+resource "devops_ops" "noops" {
+  name      = "losers"
+  engineers = [devops_engineer.newname.id]
 }
