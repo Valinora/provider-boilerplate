@@ -82,6 +82,7 @@ func (p *DevOpsProvider) Schema(ctx context.Context, req provider.SchemaRequest,
 func (p *DevOpsProvider) Resources(ctx context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		NewEngineerResource,
+		NewDevResource,
 	}
 }
 

@@ -32,3 +32,9 @@ resource "devops_engineer" "newname" {
   name  = "ajdfa"
   email = "djjjdjd@sdasds.com"
 }
+
+resource "devops_dev" "lmao" {
+  name      = "new-goblins"
+  engineers = [devops_engineer.basic.id]
+
+}
