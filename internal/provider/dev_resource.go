@@ -138,7 +138,7 @@ func (r *DevResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 	state.ID = types.StringValue(dev.ID)
 	state.Name = types.StringValue(dev.Name)
 
-	engineerIDs := make([]string, len(dev.Engineers))
+	engineerIDs := make([]string, 0, len(dev.Engineers))
 
 	for _, eng := range dev.Engineers {
 		engineerIDs = append(engineerIDs, eng.ID)
@@ -171,8 +171,6 @@ func (r *DevResource) Update(ctx context.Context, req resource.UpdateRequest, re
 		return
 	}
 
-	var dev client.Dev
-
 	var engineerIDs []string
 	diags = plan.Engineers.ElementsAs(ctx, &engineerIDs, false)
 	resp.Diagnostics.Append(diags...)
@@ -185,7 +183,10 @@ func (r *DevResource) Update(ctx context.Context, req resource.UpdateRequest, re
 		engs[i] = client.Engineer{ID: engiID}
 	}
 
-	dev.Engineers = engs
+	dev := client.Dev{
+		Name:      plan.Name.ValueString(),
+		Engineers: engs,
+	}
 
 	_, err := r.client.UpdateDev(plan.ID.ValueString(), dev)
 	if err != nil {
@@ -207,7 +208,23 @@ func (r *DevResource) Update(ctx context.Context, req resource.UpdateRequest, re
 		return
 	}
 
-	diags = resp.State.Set(ctx, devResp)
+	plan.ID = types.StringValue(devResp.ID)
+	plan.Name = types.StringValue(devResp.Name)
+
+	respEngineerIDs := make([]string, 0, len(devResp.Engineers))
+	for _, eng := range devResp.Engineers {
+		respEngineerIDs = append(respEngineerIDs, eng.ID)
+	}
+
+	engList, diags2 := types.ListValueFrom(ctx, types.StringType, respEngineerIDs)
+	resp.Diagnostics.Append(diags2...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	plan.Engineers = engList
+
+	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

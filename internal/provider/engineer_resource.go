@@ -140,7 +140,10 @@ func (r *EngineerResource) Update(ctx context.Context, req resource.UpdateReques
 		return
 	}
 
-	var engineer client.Engineer
+	engineer := client.Engineer{
+		Name:  plan.Name.ValueString(),
+		Email: plan.Email.ValueString(),
+	}
 
 	_, err := r.client.UpdateEngineer(plan.ID.ValueString(), engineer)
 	if err != nil {
@@ -162,7 +165,11 @@ func (r *EngineerResource) Update(ctx context.Context, req resource.UpdateReques
 		return
 	}
 
-	diags = resp.State.Set(ctx, engi)
+	plan.ID = types.StringValue(engi.ID)
+	plan.Name = types.StringValue(engi.Name)
+	plan.Email = types.StringValue(engi.Email)
+
+	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
