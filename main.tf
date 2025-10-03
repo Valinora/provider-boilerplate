@@ -17,28 +17,23 @@ output "engineer" {
   value = data.devops_engineer.engineer
 }
 
-resource "devops_engineer" "basic" {
+resource "devops_engineer" "me" {
   name  = "Colin"
   email = "colin@liatrio.com"
 }
 
-resource "devops_engineer" "other" {
-  name  = "Austin"
-  email = "austin@liatrio.com"
-}
 
-
-resource "devops_engineer" "newname" {
+resource "devops_engineer" "spam" {
   name  = "ajdfa"
   email = "djjjdjd@sdasds.com"
 }
 
 resource "devops_dev" "lmao" {
   name      = "new-goblins"
-  engineers = [devops_engineer.basic.id, devops_engineer.other.id]
+  engineers = [devops_engineer.me.id, devops_engineer.spam.id]
 }
 
 resource "devops_ops" "noops" {
   name      = "losers"
-  engineers = [devops_engineer.newname.id]
+  engineers = [devops_engineer.me.id]
 }
